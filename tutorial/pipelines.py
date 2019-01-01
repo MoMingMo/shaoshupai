@@ -7,7 +7,7 @@ class TutorialPipeline(object):
             con=pymysql.connect(host='localhost',user='root',passwd='YZM_root_123',db='BLOGDB',charset='utf8')
             #数据库游标
             cue=con.cursor()
-            print("mysql connect succes")
+            log.msg("mysql connect succes",log.INFO)
             try:
                 #获取文章内容 pymysql.escape_string转义内容
                 content=pymysql.escape_string(str(item['content']))
@@ -16,7 +16,7 @@ class TutorialPipeline(object):
                 #执行SQL语句
                 cue.execute(sqlstr)
             except Exception as e:
-                print('Insert error:',e)
+                log.msg('Insert error:'+e,log.ERROR)
                 #回滚
                 con.rollback()
             else:
