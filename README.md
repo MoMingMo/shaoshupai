@@ -4,7 +4,7 @@
 
 ``` bash
 git clone git@github.com:yangziming22333/shaoshupai.git
-cd tutorial
-scrapy crawl dmoz
+cd shaoshupai
+scrapy crawl shaoshupai
 注意修改pipline中mysql数据库连接
 ```
