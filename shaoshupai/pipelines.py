@@ -1,11 +1,8 @@
-from pymysql import cursors 
-from scrapy import log
 import base64
-from shaoshupai.items import ArticleItem,DictionaryItem,AuthorItem,CommentItem
-import traceback
-import sys
+from scrapy import log
+from pymysql import cursors 
 from twisted.enterprise import adbapi
-import copy
+from shaoshupai.items import ArticleItem,DictionaryItem,AuthorItem,CommentItem
 
 class ShaoshupaiPipeline(object):
      def __init__(self,dbpool):
@@ -20,22 +17,13 @@ class ShaoshupaiPipeline(object):
             charset=settings['MYSQL_CHARSET'],
             port=settings['MYSQL_PORT'],
             cursorclass=cursors.DictCursor,
-         # host='localhost',
-         # db='BlogDB',
-         # user='root',
-         # passwd='YZM_root_123',
-         # charset='utf8',
-         # port='3306',
-         # cursorclass=cursors.DictCursor,
          )
          dbpool = adbapi.ConnectionPool('pymysql', **params)
          return cls(dbpool)
-      #  self.conn= pymysql.connect(host='localhost',user='root',password='YZM_root_123',db='BlogDB',charset='utf8')
-      #  self.cursor=self.conn.cursor()
+
      def process_item(self, item, spider):
-            asynItem = copy.deepcopy(item)
             # 使用twisted将MySQL插入变成异步执行
-            query = self.dbpool.runInteraction(self.insert_db, asynItem)
+            query = self.dbpool.runInteraction(self.insert_db, item)
             # 添加异常处理
             query.addCallback(self.handle_error)
             pass
@@ -77,7 +65,6 @@ class ShaoshupaiPipeline(object):
                  sql+="INSERT INTO ssp_comments(comments,released_at,pick_count,tread_count,user_id,comment_id)VALUE('%s','%s','%s','%s','%s','%s')" %(comments,item['released_at'],item['likes_count'],item['unlikes_count'],item['user_id'],item['comment_id'])
              cursor.execute(sql)
          except Exception as ex:
-                 ex_type, ex_val, ex_stack = sys.exc_info()
-                 log.msg('{0},{1},{2},{3}'.format(ex,ex_type,ex_val,ex_stack),log.ERROR)
+                 log.msg(ex,log.ERROR)
          else:
              pass
